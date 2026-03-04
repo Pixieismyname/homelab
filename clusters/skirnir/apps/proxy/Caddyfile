@@ -1,0 +1,35 @@
+{
+	# Global options
+	# Email is only needed if you later enable public ACME certs.
+	# email you@example.com
+
+	# Helpful during early bring-up
+	log {
+		level INFO
+	}
+}
+
+# Optional landing page
+http://proxy.{$DOMAIN} {
+	respond "Caddy is running on skirnir" 200
+}
+
+# Jellyfin
+http://{$JELLYFIN_HOST} {
+	reverse_proxy jellyfin:8096
+}
+
+# Paperless-ngx
+http://{$PAPERLESS_HOST} {
+	reverse_proxy paperless:8000
+}
+
+# Home Assistant
+http://{$HOMEASSISTANT_HOST} {
+	reverse_proxy homeassistant:8123
+}
+
+# Wazuh Dashboard
+http://{$WAZUH_HOST} {
+	reverse_proxy wazuh-dashboard:5601
+}

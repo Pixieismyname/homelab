@@ -1,0 +1,30 @@
+name: proxy
+
+services:
+  caddy:
+    image: caddy:2.8.4
+    container_name: caddy
+    restart: unless-stopped
+
+    # Later we’ll supply env via .env (copied from mimir.env.example)
+    environment:
+      - TZ=${TZ}
+
+    ports:
+      # HTTP only for now (LAN). We'll add HTTPS later if/when you want it.
+      - "80:80"
+      # Optional: if you later do local HTTPS with Caddy internal CA:
+      # - "443:443"
+
+    volumes:
+      - ${DOCKER_DATA}/proxy/caddyfile:/etc/caddy/Caddyfile:ro
+      - ${DOCKER_DATA}/proxy/data:/data
+      - ${DOCKER_DATA}/proxy/config:/config
+
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK}

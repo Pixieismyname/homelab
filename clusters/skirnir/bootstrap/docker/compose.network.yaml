@@ -1,0 +1,6 @@
+name: skirnir-bootstrap
+
+networks:
+  proxy:
+    name: proxy
+    driver: bridge
