@@ -1,0 +1,19 @@
+# Home Assistant
+# Uses variables from Mímir's Well: clusters/skirnir/mimir.env.example
+
+name: homeassistant
+
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:2025.3.0
+    container_name: homeassistant
+    restart: unless-stopped
+
+    # Host networking makes discovery (mDNS/SSDP, Chromecast/Google Home, etc.) much easier.
+    network_mode: host
+
+    environment:
+      - TZ=${TZ}
+
+    volumes:
+      - ${DOCKER_DATA}/homeassistant/config:/config

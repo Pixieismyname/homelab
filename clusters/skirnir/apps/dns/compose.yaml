@@ -1,0 +1,27 @@
+name: dns
+
+services:
+  adguard:
+    image: adguard/adguardhome:v0.107.72
+    container_name: adguard
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+
+    # DNS needs to be reachable by your LAN clients
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+
+    volumes:
+      - ${DOCKER_DATA}/dns/work:/opt/adguardhome/work
+      - ${DOCKER_DATA}/dns/conf:/opt/adguardhome/conf
+
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK}

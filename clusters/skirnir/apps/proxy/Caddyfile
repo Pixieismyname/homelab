@@ -9,6 +9,11 @@
 	}
 }
 
+# DNS (AdGuard Home UI)
+http://{$DNS_HOST} {
+	reverse_proxy adguard:3000
+}
+
 # Optional landing page
 http://proxy.{$DOMAIN} {
 	respond "Caddy is running on skirnir" 200
@@ -24,9 +29,11 @@ http://{$PAPERLESS_HOST} {
 	reverse_proxy paperless:8000
 }
 
-# Home Assistant
+# Home Assistant (host network)
 http://{$HOMEASSISTANT_HOST} {
-	reverse_proxy homeassistant:8123
+	# On Linux, Caddy runs in Docker; it needs to reach the host's port 8123.
+	# host.docker.internal is supported on modern Docker; we'll add a fallback later if needed.
+	reverse_proxy host.docker.internal:8123
 }
 
 # Wazuh Dashboard

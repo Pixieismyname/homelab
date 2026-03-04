@@ -19,3 +19,7 @@ Stacks live in `apps/`:
 
 ## GitOps deploy
 The reconcile entrypoint is `scripts/deploy.sh`.
+
+## Environment
+Mímir’s Well lives at `mimir.env.example`.
+During deployment it is copied to `.env` so Compose can load variables.
