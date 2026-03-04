@@ -2,6 +2,21 @@
     - Jellyfin:
         href: http://jellyfin.aegirshus
         description: Media server
+    - Prowlarr:
+        href: http://prowlarr.aegirshus
+        description: indexer
+    - Sonarr:
+        href: http://sonarr.aegirshus
+        description: TV + Anime
+    - Radarr:
+        href: http://radarr.aegirshus
+        description: movies
+    - Bazarr:
+        href: http://bazarr.aegirshus
+        description: subtitles
+    - qBittorrent:
+        href: http://qbittorrent.aegirshus
+        description: downloader
 
 - Automation:
     - Home Assistant:

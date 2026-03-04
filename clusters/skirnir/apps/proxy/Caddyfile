@@ -50,3 +50,28 @@ http://{$HOMEASSISTANT_HOST} {
 http://{$WAZUH_HOST} {
 	reverse_proxy wazuh-dashboard:5601
 }
+
+# Prowlarr
+http://{$PROWLARR_HOST} {
+	reverse_proxy prowlarr:9696
+}
+
+# Sonarr
+http://{$SONARR_HOST} {
+	reverse_proxy sonarr:8989
+}
+
+# Radarr
+http://{$RADARR_HOST} {
+	reverse_proxy radarr:7878
+}
+
+# Bazarr
+http://{$BAZARR_HOST} {
+	reverse_proxy bazarr:6767
+}
+
+# qBittorrent
+http://{$QBITTORRENT_HOST} {
+	reverse_proxy qbittorrent:8080
+}
