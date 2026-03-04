@@ -9,6 +9,18 @@ services:
     # Later we’ll supply env via .env (copied from mimir.env.example)
     environment:
       - TZ=${TZ}
+      - DOMAIN=${DOMAIN}
+      - JELLYFIN_HOST=${JELLYFIN_HOST}
+      - PAPERLESS_HOST=${PAPERLESS_HOST}
+      - HOMEASSISTANT_HOST=${HOMEASSISTANT_HOST}
+      - DNS_HOST=${DNS_HOST}
+      - HOMEPAGE_HOST=${HOMEPAGE_HOST}
+      - PORTAINER_HOST=${PORTAINER_HOST}
+      - PROWLARR_HOST=${PROWLARR_HOST}
+      - SONARR_HOST=${SONARR_HOST}
+      - RADARR_HOST=${RADARR_HOST}
+      - BAZARR_HOST=${BAZARR_HOST}
+      - QBITTORRENT_HOST=${QBITTORRENT_HOST}
 
     ports:
       # HTTP only for now (LAN). We'll add HTTPS later if/when you want it.
