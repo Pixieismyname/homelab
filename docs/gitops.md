@@ -16,3 +16,14 @@
 ## Rollback
 - Revert the commit in Git
 - Host reconciles back to the previous desired state
+
+## Local domain
+
+Local DNS zone: `aegirshus`
+
+Service hostnames follow the pattern:
+
+- jellyfin.aegirshus
+- paperless.aegirshus
+- wazuh.aegirshus
+- ha.aegirshus
