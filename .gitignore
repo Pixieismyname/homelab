@@ -1,11 +1,10 @@
 # Secrets and env files (never commit)
-# .env
-# *.env
-# .env.*
-# secrets*
-# **/secrets*
-# **/*.key
-# **/*.pem
+.env
+*.env
+secrets*
+**/secrets*
+**/*.key
+**/*.pem
 clusters/*/.env
 clusters/*/apps/*/.env
 
