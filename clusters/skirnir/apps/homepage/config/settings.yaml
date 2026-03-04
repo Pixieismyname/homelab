@@ -1,0 +1,27 @@
+title: Skirnir
+theme: dark
+color: slate
+
+headerStyle: clean
+language: en
+
+# You can change this later once DNS exists.
+# This controls what Homepage thinks its base URL is (optional).
+# base: "http://home.aegirshus"
+
+layout:
+  Media:
+    style: row
+    columns: 4
+  Automation:
+    style: row
+    columns: 4
+  Documents:
+    style: row
+    columns: 4
+  Security:
+    style: row
+    columns: 4
+  Infrastructure:
+    style: row
+    columns: 4

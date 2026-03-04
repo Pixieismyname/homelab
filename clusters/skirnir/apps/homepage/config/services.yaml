@@ -1,0 +1,30 @@
+- Media:
+    - Jellyfin:
+        href: http://jellyfin.aegirshus
+        description: Media server
+
+- Automation:
+    - Home Assistant:
+        href: http://ha.aegirshus
+        description: Home automation
+
+- Documents:
+    - Paperless:
+        href: http://paperless.aegirshus
+        description: Document management
+
+- Security:
+    - Wazuh:
+        href: http://wazuh.aegirshus
+        description: Security monitoring
+
+- Infrastructure:
+    - DNS:
+        href: http://dns.aegirshus
+        description: AdGuard Home
+    - Proxy:
+        href: http://proxy.aegirshus
+        description: Caddy
+    - Portainer:
+        href: http://portainer.aegirshus
+        description: Docker observability

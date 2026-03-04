@@ -19,6 +19,16 @@ http://proxy.{$DOMAIN} {
 	respond "Caddy is running on skirnir" 200
 }
 
+# Homepage
+http://{$HOMEPAGE_HOST} {
+	reverse_proxy homepage:3000
+}
+
+# Portainer
+http://{$PORTAINER_HOST} {
+	reverse_proxy portainer:9000
+}
+
 # Jellyfin
 http://{$JELLYFIN_HOST} {
 	reverse_proxy jellyfin:8096
