@@ -1,0 +1,15 @@
+[Unit]
+Description=Skirnir GitOps reconcile (Docker Compose)
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Recommended: run as a dedicated user you create later (gitops)
+User=gitops
+Group=gitops
+Environment=REPO_DIR=/opt/homelab
+Environment=BRANCH=main
+Environment=REMOTE=origin
+WorkingDirectory=/opt/homelab
+ExecStart=/opt/homelab/clusters/skirnir/scripts/reconcile.sh

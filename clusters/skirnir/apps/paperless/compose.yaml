@@ -1,0 +1,75 @@
+# Paperless-ngx
+# Uses shared variables from Mímir's Well: clusters/skirnir/mimir.env.example
+# Uses stack-specific variables from: ./paperless.env  (copy from paperless.env.example later)
+
+name: paperless
+
+services:
+  paperless-db:
+    image: postgres:16-alpine
+    container_name: paperless-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${PAPERLESS_DBNAME}
+      - POSTGRES_USER=${PAPERLESS_DBUSER}
+      - POSTGRES_PASSWORD=${PAPERLESS_DBPASS}
+    volumes:
+      - ${DOCKER_DATA}/paperless/db:/var/lib/postgresql/data
+    networks:
+      - default
+
+  paperless-redis:
+    image: redis:7-alpine
+    container_name: paperless-redis
+    restart: unless-stopped
+    volumes:
+      - ${DOCKER_DATA}/paperless/redis:/data
+    networks:
+      - default
+
+  paperless:
+    # Pin to a specific Paperless-ngx release (no "latest")
+    image: paperlessngx/paperless-ngx:2.20.9
+    container_name: paperless
+    restart: unless-stopped
+
+    depends_on:
+      - paperless-db
+      - paperless-redis
+
+    env_file:
+      - ./paperless.env
+
+    environment:
+      # Shared host-level defaults (Mímir's Well)
+      - TZ=${TZ}
+      - USERMAP_UID=${PUID}
+      - USERMAP_GID=${PGID}
+
+      # Core connectivity (explicit here so it’s obvious in the compose file)
+      - PAPERLESS_REDIS=redis://paperless-redis:6379
+      - PAPERLESS_DBHOST=paperless-db
+      - PAPERLESS_DBNAME=${PAPERLESS_DBNAME}
+      - PAPERLESS_DBUSER=${PAPERLESS_DBUSER}
+      - PAPERLESS_DBPASS=${PAPERLESS_DBPASS}
+
+    volumes:
+      # Your “inbox” for new docs
+      - ${PAPERLESS_PATH}/consume:/usr/src/paperless/consume
+
+      # Paperless data & media
+      - ${PAPERLESS_PATH}/data:/usr/src/paperless/data
+      - ${PAPERLESS_PATH}/media:/usr/src/paperless/media
+
+      # Optional export dir (handy for backups/exports)
+      - ${PAPERLESS_PATH}/export:/usr/src/paperless/export
+
+    # No host ports: reached via Caddy at paperless.${DOMAIN}
+    networks:
+      - proxy
+      - default
+
+networks:
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK}
