@@ -42,14 +42,14 @@ http://{$PAPERLESS_HOST} {
 # Home Assistant (host network)
 http://{$HOMEASSISTANT_HOST} {
 	# On Linux, Caddy runs in Docker; it needs to reach the host's port 8123.
-	# host.docker.internal is supported on modern Docker; we'll add a fallback later if needed.
+	# host.docker.internal is mapped via host-gateway in compose.yaml.
 	reverse_proxy host.docker.internal:8123
 }
 
-# Wazuh Dashboard
-http://{$WAZUH_HOST} {
-	reverse_proxy wazuh-dashboard:5601
-}
+# Wazuh Dashboard (enable when wazuh stack is added)
+# http://{$WAZUH_HOST} {
+# 	reverse_proxy wazuh-dashboard:5601
+# }
 
 # Prowlarr
 http://{$PROWLARR_HOST} {

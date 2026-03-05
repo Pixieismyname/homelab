@@ -1,27 +1,19 @@
-# Homepage dashboard
+# Home Assistant
 # Uses variables from Mímir's Well: clusters/skirnir/mimir.env.example
 
-name: homepage
+name: homeassistant
 
 services:
-  homepage:
-    image: ghcr.io/gethomepage/homepage:v0.9.13
-    container_name: homepage
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:2025.3.0
+    container_name: homeassistant
     restart: unless-stopped
+
+    # Host networking makes discovery (mDNS/SSDP, Chromecast/Google Home, etc.) much easier.
+    network_mode: host
 
     environment:
       - TZ=${TZ}
 
     volumes:
-      # Config lives in Git; mounted read-only
-      - ./config:/app/config:ro
-      # Give Homepage read-only access to Docker for status widgets (optional but useful)
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-
-    networks:
-      - proxy
-
-networks:
-  proxy:
-    external: true
-    name: ${PROXY_NETWORK}
+      - ${DOCKER_DATA}/homeassistant/config:/config

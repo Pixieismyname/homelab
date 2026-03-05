@@ -28,6 +28,9 @@ services:
       # Optional: if you later do local HTTPS with Caddy internal CA:
       # - "443:443"
 
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
     volumes:
       - ${DOCKER_DATA}/proxy/caddyfile:/etc/caddy/Caddyfile:ro
       - ${DOCKER_DATA}/proxy/data:/data

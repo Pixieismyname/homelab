@@ -11,14 +11,14 @@ Conventions (bind mounts):
 Stacks live in `apps/`:
 - `proxy/` (Caddy reverse proxy)
 - `dns/` (AdGuard Home)
-- `home-assistant/`
+- `homeassistant/`
 - `jellyfin/`
 - `arr/`
 - `paperless/`
-- `wazuh/`
+- `wazuh/` (planned)
 
 ## GitOps deploy
-The reconcile entrypoint is `scripts/deploy.sh`.
+The reconcile entrypoint is `scripts/reconcile.sh`.
 
 ## Environment
 Mímir’s Well lives at `mimir.env.example`.

@@ -13,4 +13,6 @@ Clone the homelab repo and run:
 
 ```bash
 cd homelab/clusters/skirnir/bootstrap
+sudo bash bootstrap-user.sh
 sudo bash bootstrap.sh
+```

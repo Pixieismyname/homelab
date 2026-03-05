@@ -28,11 +28,6 @@
         href: http://paperless.aegirshus
         description: Document management
 
-- Security:
-    - Wazuh:
-        href: http://wazuh.aegirshus
-        description: Security monitoring
-
 - Infrastructure:
     - DNS:
         href: http://dns.aegirshus

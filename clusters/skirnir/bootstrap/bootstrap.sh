@@ -1,7 +1,3 @@
-
-### 2) `clusters/skirnir/bootstrap/bootstrap.sh`
-
-```bash
 #!/usr/bin/env bash
 set -euo pipefail
 
