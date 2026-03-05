@@ -14,7 +14,7 @@ services:
 
     volumes:
       # Config lives in Git; mounted read-only
-      - ./config:/app/config:ro
+      - ./config:/app/config
       # Give Homepage read-only access to Docker for status widgets (optional but useful)
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
