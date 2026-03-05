@@ -9,6 +9,18 @@ GITOPS_USER="gitops"
 REPO_DIR="/opt/homelab"
 DATA_ROOT="/srv"
 
+upsert_env_var() {
+  local file_path="$1"
+  local key="$2"
+  local value="$3"
+
+  if grep -q "^${key}=" "$file_path"; then
+    sed -i "s|^${key}=.*|${key}=${value}|" "$file_path"
+  else
+    echo "${key}=${value}" >> "$file_path"
+  fi
+}
+
 if [[ "${EUID}" -ne 0 ]]; then
   echo "Run as root: sudo bash bootstrap-user.sh"
   exit 1
@@ -51,12 +63,28 @@ chown -R "$GITOPS_USER":"$GITOPS_USER" "$REPO_DIR"
 
 echo "Preparing /srv directories"
 
-mkdir -p $DATA_ROOT/docker
-mkdir -p $DATA_ROOT/media
-mkdir -p $DATA_ROOT/downloads
-mkdir -p $DATA_ROOT/paperless
+mkdir -p "$DATA_ROOT/docker"
+mkdir -p "$DATA_ROOT/media"
+mkdir -p "$DATA_ROOT/downloads"
+mkdir -p "$DATA_ROOT/paperless"
 
-chown -R "$GITOPS_USER":"$GITOPS_USER" $DATA_ROOT
+chown -R "$GITOPS_USER":"$GITOPS_USER" "$DATA_ROOT"
+
+########################################
+# Align .env PUID/PGID with gitops user
+########################################
+
+GITOPS_UID="$(id -u "$GITOPS_USER")"
+GITOPS_GID="$(id -g "$GITOPS_USER")"
+ENV_FILE="$REPO_DIR/clusters/skirnir/.env"
+
+if [[ -f "$ENV_FILE" ]]; then
+  echo "Updating $ENV_FILE with gitops UID/GID ($GITOPS_UID:$GITOPS_GID)"
+  upsert_env_var "$ENV_FILE" "PUID" "$GITOPS_UID"
+  upsert_env_var "$ENV_FILE" "PGID" "$GITOPS_GID"
+else
+  echo "Note: $ENV_FILE not found yet; PUID/PGID auto-sync will run when .env exists."
+fi
 
 ########################################
 # Ensure docker access works

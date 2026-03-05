@@ -5,17 +5,51 @@ REPO_DIR="${REPO_DIR:-/opt/homelab}"
 BRANCH="${BRANCH:-main}"
 REMOTE="${REMOTE:-origin}"
 
+require_cmd() {
+  local command_name="$1"
+  command -v "$command_name" >/dev/null 2>&1 || {
+    echo "[reconcile] Missing required command: $command_name"
+    exit 1
+  }
+}
+
+require_cmd git
+require_cmd docker
+
+if [[ ! -d "$REPO_DIR" ]]; then
+  echo "[reconcile] REPO_DIR does not exist: $REPO_DIR"
+  exit 1
+fi
+
 cd "$REPO_DIR"
 
+git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
+  echo "[reconcile] Not a git repository: $REPO_DIR"
+  exit 1
+}
+
 echo "[reconcile] Fetching git state..."
-git fetch --all --prune
+git fetch "$REMOTE" --prune
+
+if ! git show-ref --verify --quiet "refs/remotes/${REMOTE}/${BRANCH}"; then
+  echo "[reconcile] Remote branch not found: ${REMOTE}/${BRANCH}"
+  exit 1
+fi
+
+git checkout -B "$BRANCH" "${REMOTE}/${BRANCH}"
 git reset --hard "${REMOTE}/${BRANCH}"
+echo "[reconcile] Using commit $(git rev-parse --short HEAD)"
 
 # Ensure proxy network exists (safe if already exists)
 docker network create proxy >/dev/null 2>&1 || true
 
 # Env: compose should load clusters/skirnir/.env
 cd clusters/skirnir
+
+if [[ ! -f .env ]]; then
+  echo "[reconcile] Missing env file: $REPO_DIR/clusters/skirnir/.env"
+  exit 1
+fi
 
 # Apply stacks (order matters a bit: proxy before UIs, etc.)
 STACKS=(
@@ -30,6 +64,13 @@ STACKS=(
 )
 
 for f in "${STACKS[@]}"; do
+  if [[ ! -f "$f" ]]; then
+    echo "[reconcile] Missing compose file: $f"
+    exit 1
+  fi
+
+  docker compose --env-file .env -f "$f" config -q
+
   echo "[reconcile] Applying $f"
   docker compose --env-file .env -f "$f" pull
   docker compose --env-file .env -f "$f" up -d --remove-orphans

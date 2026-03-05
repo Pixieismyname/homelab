@@ -8,7 +8,9 @@ Paperless-ngx (docs/archive) with PostgreSQL + Redis.
 ## Environment
 This stack uses:
 - Shared variables from **Mímir's Well**: `clusters/skirnir/mimir.env.example`
+	- Includes DB vars (`PAPERLESS_DBNAME`, `PAPERLESS_DBUSER`, `PAPERLESS_DBPASS`)
 - Stack-specific variables from: `paperless.env` (copy from `paperless.env.example`)
+	- App-specific vars (for example `PAPERLESS_SECRET_KEY`)
 
 ## Storage
 Host paths (from Mímir’s Well):

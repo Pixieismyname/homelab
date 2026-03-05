@@ -1,16 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # ---- Settings you may change ----
 REPO_DIR_DEFAULT="/opt/homelab"
 GIT_REMOTE_DEFAULT="origin"
 GIT_BRANCH_DEFAULT="main"
 # --------------------------------
 
+require_cmd() {
+  local command_name="$1"
+  command -v "$command_name" >/dev/null 2>&1 || {
+    echo "[bootstrap] Missing required command: $command_name"
+    exit 1
+  }
+}
+
 if [[ "${EUID}" -ne 0 ]]; then
   echo "Run as root: sudo bash bootstrap.sh"
   exit 1
 fi
+
+require_cmd apt-get
+require_cmd curl
+require_cmd gpg
+require_cmd systemctl
+require_cmd install
 
 echo "[1/8] Base packages"
 apt-get update
@@ -52,8 +68,8 @@ install -m 0755 -d /opt/homelab
 # The systemd unit will run reconcile.sh which uses REPO_DIR env.
 
 echo "[8/8] Install systemd units"
-install -m 0644 ./systemd/skirnir-reconcile.service /etc/systemd/system/skirnir-reconcile.service
-install -m 0644 ./systemd/skirnir-reconcile.timer /etc/systemd/system/skirnir-reconcile.timer
+install -m 0644 "${SCRIPT_DIR}/systemd/skirnir-reconcile.service" /etc/systemd/system/skirnir-reconcile.service
+install -m 0644 "${SCRIPT_DIR}/systemd/skirnir-reconcile.timer" /etc/systemd/system/skirnir-reconcile.timer
 
 systemctl daemon-reload
 systemctl enable --now skirnir-reconcile.timer
