@@ -15,6 +15,8 @@ This stack uses:
 - Stack-specific variables from: `paperless.env` (copy from `paperless.env.example`)
   - App-specific vars (for example `PAPERLESS_SECRET_KEY`)
 
+`paperless` service also loads `./paperless.env` via Compose `env_file`.
+
 ## Storage
 
 Host paths (from Mímir’s Well):
@@ -28,6 +30,12 @@ Database/redis state:
 
 - `${DOCKER_DATA}/paperless/db`
 - `${DOCKER_DATA}/paperless/redis`
+
+## Service topology
+
+- `paperless-db` (PostgreSQL) is internal to the stack (`default` network)
+- `paperless-redis` is internal to the stack (`default` network)
+- `paperless` joins both `default` and external `${PROXY_NETWORK}`
 
 ## Notes
 

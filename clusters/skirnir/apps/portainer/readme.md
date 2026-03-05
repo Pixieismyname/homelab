@@ -22,6 +22,14 @@ Do not routinely edit or deploy stacks from Portainer.
 
 - `${DOCKER_DATA}/portainer/data` (bind mount on host)
 
+## Network
+
+- Joins external `${PROXY_NETWORK}` network
+
+## Docker access
+
+- Mounts `/var/run/docker.sock` into container (full Docker API access)
+
 ## Security note
 
 Portainer has powerful access to the Docker socket. Treat access as admin-level.

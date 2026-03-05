@@ -12,6 +12,14 @@ Media server.
 - Cache: `${DOCKER_DATA}/jellyfin/cache`
 - Media: `${MEDIA_PATH}` mounted read-only at `/media`
 
+## Environment
+
+- Uses `${TZ}`, `${PUID}`, `${PGID}`
+
+## Network
+
+- Joins external `${PROXY_NETWORK}` network
+
 ## Notes
 
 - This stack does not expose ports on the host; access is via the reverse proxy.
