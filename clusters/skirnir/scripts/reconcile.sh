@@ -13,6 +13,33 @@ require_cmd() {
   }
 }
 
+merge_missing_env_keys() {
+  local source_file="$1"
+  local target_file="$2"
+  local line
+  local key
+  local added_count=0
+
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    [[ -z "$line" ]] && continue
+    [[ "$line" =~ ^[[:space:]]*# ]] && continue
+    [[ "$line" != *"="* ]] && continue
+
+    key="${line%%=*}"
+    [[ "$key" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || continue
+
+    if ! grep -q "^${key}=" "$target_file"; then
+      echo "$line" >> "$target_file"
+      added_count=$((added_count + 1))
+      echo "[reconcile] Added missing .env key: $key"
+    fi
+  done < "$source_file"
+
+  if [[ "$added_count" -eq 0 ]]; then
+    echo "[reconcile] .env already has all keys from $source_file"
+  fi
+}
+
 require_cmd git
 require_cmd docker
 
@@ -50,6 +77,13 @@ if [[ ! -f .env ]]; then
   echo "[reconcile] Missing env file: $REPO_DIR/clusters/skirnir/.env"
   exit 1
 fi
+
+if [[ ! -f mimir.env.example ]]; then
+  echo "[reconcile] Missing env template: $REPO_DIR/clusters/skirnir/mimir.env.example"
+  exit 1
+fi
+
+merge_missing_env_keys "mimir.env.example" ".env"
 
 # Apply stacks (order matters a bit: proxy before UIs, etc.)
 STACKS=(
