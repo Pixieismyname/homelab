@@ -94,6 +94,7 @@ STACKS=(
   "apps/portainer/compose.yaml"
   "apps/jellyfin/compose.yaml"
   "apps/arr/compose.yaml"
+  "apps/flaresolverr/compose.yaml"
   "apps/paperless/compose.yaml"
 )
 

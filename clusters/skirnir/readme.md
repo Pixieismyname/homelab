@@ -18,12 +18,17 @@ Stacks live in `apps/`:
 - `homeassistant/`
 - `jellyfin/`
 - `arr/`
+- `flaresolverr/`
 - `paperless/`
 - `wazuh/` (planned)
 
 ## GitOps deploy
 
 The reconcile entrypoint is `scripts/reconcile.sh`.
+
+Health checks are available in `scripts/healthcheck.sh`.
+
+Client-side PowerShell checks are available in `scripts/healthcheck-client.ps1`.
 
 ## Environment
 

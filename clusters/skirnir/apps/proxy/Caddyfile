@@ -75,3 +75,8 @@ http://{$BAZARR_HOST} {
 http://{$QBITTORRENT_HOST} {
 	reverse_proxy qbittorrent:8080
 }
+
+# FlareSolverr
+http://{$FLARESOLVERR_HOST} {
+	reverse_proxy flaresolverr:8191
+}

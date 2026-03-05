@@ -15,6 +15,7 @@ Automation stack:
 - `http://radarr.${DOMAIN}`
 - `http://bazarr.${DOMAIN}`
 - `http://qbittorrent.${DOMAIN}`
+- `http://flaresolverr.${DOMAIN}`
 
 ## Paths (inside containers)
 

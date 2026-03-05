@@ -32,6 +32,9 @@
     - DNS:
         href: http://dns.aegirshus
         description: AdGuard Home
+    - FlareSolverr:
+        href: http://flaresolverr.aegirshus
+        description: anti-bot solver
     - Proxy:
         href: http://proxy.aegirshus
         description: Caddy

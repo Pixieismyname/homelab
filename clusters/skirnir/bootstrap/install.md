@@ -106,6 +106,25 @@ cd /opt/homelab
 sudo -u gitops REPO_DIR=/opt/homelab bash clusters/skirnir/scripts/reconcile.sh
 ```
 
+Run a full app healthcheck:
+
+```bash
+cd /opt/homelab
+sudo -u gitops REPO_DIR=/opt/homelab bash clusters/skirnir/scripts/healthcheck.sh
+```
+
+Run a client-side PowerShell healthcheck (for example from Windows):
+
+```powershell
+pwsh -File .\clusters\skirnir\scripts\healthcheck-client.ps1 -Domain aegirshus -Scheme http
+```
+
+If using internal HTTPS certs that are not trusted yet:
+
+```powershell
+pwsh -File .\clusters\skirnir\scripts\healthcheck-client.ps1 -Domain aegirshus -Scheme https -IgnoreTlsErrors
+```
+
 ## 7) Changing environment values safely
 
 - Treat `clusters/skirnir/mimir.env.example` as schema/default template.

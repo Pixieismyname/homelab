@@ -19,6 +19,7 @@ Active hostnames include:
 - `${RADARR_HOST}`
 - `${BAZARR_HOST}`
 - `${QBITTORRENT_HOST}`
+- `${FLARESOLVERR_HOST}`
 
 Planned (when stack exists):
 

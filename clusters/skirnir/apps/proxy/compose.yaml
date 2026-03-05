@@ -21,6 +21,7 @@ services:
       - RADARR_HOST=${RADARR_HOST}
       - BAZARR_HOST=${BAZARR_HOST}
       - QBITTORRENT_HOST=${QBITTORRENT_HOST}
+      - FLARESOLVERR_HOST=${FLARESOLVERR_HOST}
 
     ports:
       # HTTP only for now (LAN). We'll add HTTPS later if/when you want it.

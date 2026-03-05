@@ -1,0 +1,25 @@
+# FlareSolverr
+# Uses variables from Mímir's Well: clusters/skirnir/mimir.env.example
+
+name: flaresolverr
+
+services:
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:v3.3.21
+    container_name: flaresolverr
+    restart: unless-stopped
+
+    environment:
+      - TZ=${TZ}
+      - LOG_LEVEL=info
+      - LOG_HTML=false
+      - CAPTCHA_SOLVER=none
+
+    # No host ports exposed; access is via Caddy at flaresolverr.${DOMAIN}
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK}
