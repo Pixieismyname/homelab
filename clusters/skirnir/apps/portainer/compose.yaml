@@ -5,7 +5,7 @@ name: portainer
 
 services:
   portainer:
-    image: portainer/portainer-ce:2.21.5
+    image: portainer/portainer-ce:latest
     container_name: portainer
     restart: unless-stopped
 
