@@ -12,7 +12,8 @@ $files = Get-ChildItem -Path $resolvedRoot -File -Recurse
 
 foreach ($file in $files) {
     $oldName = $file.Name
-    $newName = $oldName -replace '^\[[^\]]*\]', ''
+    $newName = $oldName -replace '^\[[^\]]*\]\s*', ''
+    $newName = $newName -replace '^\d{1,2}\.\s*', ''
 
     if ($newName -eq $oldName) {
         continue
@@ -40,7 +41,8 @@ $folders = Get-ChildItem -Path $resolvedRoot -Directory -Recurse |
 
 foreach ($folder in $folders) {
     $oldName = $folder.Name
-    $newName = $oldName -replace '^\[[^\]]*\]', ''
+    $newName = $oldName -replace '^\[[^\]]*\]\s*', ''
+    $newName = $newName -replace '^\d{1,2}\.\s*', ''
 
     if ($newName -eq $oldName) {
         continue
