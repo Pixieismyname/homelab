@@ -71,8 +71,8 @@ ensure_mount_if_needed() {
       return 0
     fi
 
-    echo "[reconcile] Failed to mount: $path"
-    exit 1
+    echo "[reconcile][warn] Failed to mount: $path (continuing)"
+    return 0
   fi
 
   echo "[reconcile] Not a mount path, skip mount: $path"
