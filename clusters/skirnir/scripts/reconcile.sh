@@ -40,8 +40,47 @@ merge_missing_env_keys() {
   fi
 }
 
+ensure_directory() {
+  local path="$1"
+
+  [[ -n "$path" ]] || return 0
+
+  if [[ -d "$path" ]]; then
+    echo "[reconcile] Storage exists: $path"
+    return 0
+  fi
+
+  mkdir -p "$path"
+  echo "[reconcile] Created storage directory: $path"
+}
+
+ensure_mount_if_needed() {
+  local path="$1"
+
+  [[ -n "$path" ]] || return 0
+
+  if mountpoint -q "$path"; then
+    echo "[reconcile] Mount exists: $path"
+    return 0
+  fi
+
+  if [[ "$path" == /mnt/* ]]; then
+    echo "[reconcile] Mount missing at $path, attempting mount"
+    if mount "$path"; then
+      echo "[reconcile] Mounted: $path"
+      return 0
+    fi
+
+    echo "[reconcile] Failed to mount: $path"
+    exit 1
+  fi
+
+  echo "[reconcile] Not a mount path, skip mount: $path"
+}
+
 require_cmd git
 require_cmd docker
+require_cmd mountpoint
 
 if [[ ! -d "$REPO_DIR" ]]; then
   echo "[reconcile] REPO_DIR does not exist: $REPO_DIR"
@@ -84,6 +123,32 @@ if [[ ! -f mimir.env.example ]]; then
 fi
 
 merge_missing_env_keys "mimir.env.example" ".env"
+
+set -a
+# shellcheck disable=SC1091
+source .env
+set +a
+
+STORAGE_PATHS=(
+  "${DOCKER_DATA:-}"
+  "${PAPERLESS_PATH:-}"
+  "${WAZUH_PATH:-}"
+  "${MEDIA_PATH:-}"
+  "${DOWNLOADS_PATH:-}"
+)
+
+for path in "${STORAGE_PATHS[@]}"; do
+  ensure_directory "$path"
+done
+
+MOUNT_CANDIDATES=(
+  "${MEDIA_PATH:-}"
+  "${DOWNLOADS_PATH:-}"
+)
+
+for path in "${MOUNT_CANDIDATES[@]}"; do
+  ensure_mount_if_needed "$path"
+done
 
 # Apply stacks (order matters a bit: proxy before UIs, etc.)
 STACKS=(
