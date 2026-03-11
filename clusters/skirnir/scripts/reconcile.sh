@@ -176,4 +176,4 @@ for f in "${STACKS[@]}"; do
   docker compose --env-file .env -f "$f" up -d --remove-orphans
 done
 
-echo "[reconcile] Done."
+echo "[reconcile] Done. YEAH!"
