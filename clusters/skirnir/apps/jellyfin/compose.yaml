@@ -23,6 +23,12 @@ services:
     networks:
       - proxy
 
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4G
+
 networks:
   proxy:
     external: true

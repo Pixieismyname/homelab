@@ -17,3 +17,9 @@ services:
 
     volumes:
       - ${DOCKER_DATA}/homeassistant/config:/config
+
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G

@@ -21,6 +21,12 @@ services:
     networks:
       - proxy
 
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+
 networks:
   proxy:
     external: true

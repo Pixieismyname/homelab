@@ -40,6 +40,12 @@ services:
     networks:
       - proxy
 
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 256M
+
 networks:
   proxy:
     external: true

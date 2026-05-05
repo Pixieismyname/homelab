@@ -17,6 +17,11 @@ services:
       - ${DOCKER_DATA}/paperless/db:/var/lib/postgresql/data
     networks:
       - default
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
 
   paperless-redis:
     image: redis:7-alpine
@@ -26,6 +31,11 @@ services:
       - ${DOCKER_DATA}/paperless/redis:/data
     networks:
       - default
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 64M
 
   paperless:
     # Pin to a specific Paperless-ngx release (no "latest")
@@ -68,6 +78,12 @@ services:
     networks:
       - proxy
       - default
+
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
 
 networks:
   proxy:
