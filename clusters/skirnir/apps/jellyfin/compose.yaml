@@ -18,6 +18,7 @@ services:
       - ${DOCKER_DATA}/jellyfin/config:/config
       - ${DOCKER_DATA}/jellyfin/cache:/cache
       - ${MEDIA_PATH}:/media:ro
+      - ${DOWNLOADS_PATH}:/downloads:ro
 
     # No ports exposed: accessed via Caddy at jellyfin.${DOMAIN}
     networks:
