@@ -78,9 +78,44 @@ ensure_mount_if_needed() {
   echo "[reconcile] Not a mount path, skip mount: $path"
 }
 
+ensure_bind_mount() {
+  local source_path="$1"
+  local target_path="$2"
+  local mounted_source
+
+  [[ -n "$source_path" ]] || return 0
+  [[ -n "$target_path" ]] || return 0
+
+  if [[ ! -d "$source_path" ]]; then
+    echo "[reconcile][warn] Bind source missing: $source_path"
+    return 0
+  fi
+
+  ensure_directory "$target_path"
+
+  if mountpoint -q "$target_path"; then
+    mounted_source="$(findmnt -n -o SOURCE --target "$target_path" || true)"
+    if [[ "$mounted_source" == "$source_path" ]]; then
+      echo "[reconcile] Bind mount exists: $source_path -> $target_path"
+      return 0
+    fi
+
+    echo "[reconcile][warn] Target already mounted from $mounted_source: $target_path"
+    return 0
+  fi
+
+  if mount --bind "$source_path" "$target_path"; then
+    echo "[reconcile] Bound: $source_path -> $target_path"
+    return 0
+  fi
+
+  echo "[reconcile][warn] Failed bind mount: $source_path -> $target_path"
+}
+
 require_cmd git
 require_cmd docker
 require_cmd mountpoint
+require_cmd findmnt
 
 if [[ ! -d "$REPO_DIR" ]]; then
   echo "[reconcile] REPO_DIR does not exist: $REPO_DIR"
@@ -161,6 +196,8 @@ MOUNT_CANDIDATES=(
 for path in "${MOUNT_CANDIDATES[@]}"; do
   ensure_mount_if_needed "$path"
 done
+
+ensure_bind_mount "${DOWNLOADS_PATH:-}" "${MEDIA_PATH:-}/USBDownloads"
 
 # Apply stacks (order matters a bit: proxy before UIs, etc.)
 STACKS=(
