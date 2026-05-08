@@ -26,6 +26,9 @@ Mounted paths are consistent across apps:
   - `/media/Anime`  (anime goes here)
   - `/media/Movies`
 - Downloads: `/downloads`
+  - `/downloads/movies`
+  - `/downloads/tv`
+  - `/downloads/anime`
 
 ## Host mounts
 
@@ -52,3 +55,13 @@ Mounted paths are consistent across apps:
 
 - qBittorrent exposes TCP/UDP 6881 for torrent traffic.
 - The web UIs are routed through Caddy (no host ports for the arr apps).
+
+## qBittorrent categories
+
+Set category save paths in qBittorrent (`Settings` -> `Downloads` -> `Category Save Path`) to:
+
+- `movies` -> `/downloads/movies`
+- `tv` -> `/downloads/tv`
+- `anime` -> `/downloads/anime`
+
+New downloads will be stored on the host path configured by `${DOWNLOADS_PATH}`.

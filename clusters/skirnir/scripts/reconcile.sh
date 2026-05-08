@@ -141,6 +141,18 @@ for path in "${STORAGE_PATHS[@]}"; do
   ensure_directory "$path"
 done
 
+if [[ -n "${DOWNLOADS_PATH:-}" ]]; then
+  DOWNLOAD_CATEGORIES=(
+    "movies"
+    "tv"
+    "anime"
+  )
+
+  for category in "${DOWNLOAD_CATEGORIES[@]}"; do
+    ensure_directory "${DOWNLOADS_PATH}/${category}"
+  done
+fi
+
 MOUNT_CANDIDATES=(
   "${MEDIA_PATH:-}"
   "${DOWNLOADS_PATH:-}"
