@@ -17,6 +17,7 @@ services:
 
     volumes:
       - ${DOCKER_DATA}/homeassistant/config:/config
+      - ${REPO_DIR}/clusters/skirnir/apps/homeassistant/configuration.yaml:/config/configuration.yaml:ro
 
     deploy:
       resources:
