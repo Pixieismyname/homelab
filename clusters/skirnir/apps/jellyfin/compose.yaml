@@ -13,13 +13,25 @@ services:
       - TZ=${TZ}
       - PUID=${PUID}
       - PGID=${PGID}
+      # Intel VAAPI hardware transcoding (set in Jellyfin Dashboard too)
+      - JELLYFIN_FFmpeg__probesize=50000000
+      - JELLYFIN_FFmpeg__analyzeduration=50000000
 
     volumes:
       - ${DOCKER_DATA}/jellyfin/config:/config
       - ${DOCKER_DATA}/jellyfin/cache:/cache
-      - ${MEDIA_PATH}:/media
+      # Transcoding temp dir — must be LOCAL storage, not the remote mount
+      - ${DOCKER_DATA}/jellyfin/transcodes:/config/transcodes
+      - ${MEDIA_PATH}:/media:ro
       - ${DOWNLOADS_PATH}:/downloads:ro
       - ${DOWNLOADS_PATH}:/media/USBDownloads:ro
+
+    # Intel VAAPI hardware transcoding (iGPU passthrough)
+    # If using NVIDIA, replace this with runtime: nvidia + NVIDIA_VISIBLE_DEVICES
+    devices:
+      - /dev/dri:/dev/dri
+    group_add:
+      - "993"   # render group on host — required for GPU access
 
     # No ports exposed: accessed via Caddy at jellyfin.${DOMAIN}
     networks:
@@ -28,8 +40,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.0'
-          memory: 4G
+          cpus: '6.0'
+          memory: 6G
 
 networks:
   proxy:
