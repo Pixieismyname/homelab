@@ -505,7 +505,7 @@ function escapeHtml(s){
 
 function updateStats(){
   const total = videos.length;
-  const done = videos.filter(v => commented[v.id]).length;
+  const done = videos.filter(v => commented[v.id] || v.apiCommented).length;
   document.getElementById('statTotal').textContent = total;
   document.getElementById('statDone').textContent = done;
   document.getElementById('statOpen').textContent = total - done;
