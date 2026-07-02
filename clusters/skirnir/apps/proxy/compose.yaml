@@ -22,6 +22,7 @@ services:
       - BAZARR_HOST=${BAZARR_HOST}
       - QBITTORRENT_HOST=${QBITTORRENT_HOST}
       - FLARESOLVERR_HOST=${FLARESOLVERR_HOST}
+      - BOREDGAMERTRACKER_HOST=${BOREDGAMERTRACKER_HOST}
 
     ports:
       # HTTP only for now (LAN). We'll add HTTPS later if/when you want it.
@@ -33,7 +34,7 @@ services:
       - "host.docker.internal:host-gateway"
 
     volumes:
-      - ${DOCKER_DATA}/proxy/caddyfile:/etc/caddy/Caddyfile:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ${DOCKER_DATA}/proxy/data:/data
       - ${DOCKER_DATA}/proxy/config:/config
 
