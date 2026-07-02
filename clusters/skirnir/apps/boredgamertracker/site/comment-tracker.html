@@ -204,7 +204,7 @@
       <span class="t" style="color:var(--accent)">edit ▾</span>
     </div>
     <div class="body">
-      <p class="hint">Checks YouTube's public comments on a video for a comment from your channel — this reads public data, no login needed. Requires a free YouTube Data API v3 key from <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener" style="color:var(--accent)">Google Cloud Console ↗</a> (enable "YouTube Data API v3", create an API key). Enter it below once — "Save settings" keeps it in this browser only; "Save to server" (password-protected) stores it on the server so it's pre-filled on every device.</p>
+      <p class="hint">The server automatically checks YouTube's public comments on each video for a comment from your channel every 30 minutes — no per-video button needed, the green check appears on its own once confirmed. Requires a free YouTube Data API v3 key from <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener" style="color:var(--accent)">Google Cloud Console ↗</a> (enable "YouTube Data API v3", create an API key). Enter it below once — "Save settings" keeps it in this browser only; "Save to server" (password-protected) stores it on the server, which is what the automatic check actually reads.</p>
       <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">API key</label>
       <input type="text" id="apiKeyInput" placeholder="AIza..." style="width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:8px 10px;font-family:monospace;font-size:12px;margin-bottom:10px;">
       <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">Your channel handle or ID</label>
@@ -392,7 +392,6 @@ const DEFAULT_COMMENTS = [
 ];
 
 let commented = {};
-let verified = {};
 let videos = [];
 
 async function storageGet(key, fallback){
@@ -471,7 +470,6 @@ function render(){
     videos.forEach(v => {
       const apiConfirmed = !!v.apiCommented;
       const done = !!commented[v.id] || apiConfirmed;
-      const isVerified = !!verified[v.id] || apiConfirmed;
       const row = document.createElement('div');
       row.className = 'video' + (done ? ' done' : '');
       row.innerHTML = `
@@ -481,9 +479,8 @@ function render(){
           <p class="meta ${isRecent(v.published) ? 'new' : ''}">${isRecent(v.published) ? 'NEW · ' : ''}${fmtDate(v.published)}</p>
         </div>
         <div class="actions">
-          <div class="reticle ${done ? 'checked' : ''} ${isVerified ? 'verified' : ''}" data-id="${v.id}" title="${apiConfirmed ? 'Auto-confirmed via API' : (isVerified ? 'Confirmed via API' : (done ? 'Marked commented' : 'Click to mark commented'))}"></div>
+          <div class="reticle ${done ? 'checked' : ''} ${apiConfirmed ? 'verified' : ''}" data-id="${v.id}" title="${apiConfirmed ? 'Auto-confirmed via API' : (done ? 'Marked commented' : 'Click to mark commented')}"></div>
           <button class="comment-btn small" data-id="${v.id}">Comment ↗</button>
-          ${apiConfirmed ? '' : `<button class="small ghost" data-vid="${v.id}" onclick="verifyVideo('${v.id}')">Verify via API</button>`}
           <div class="copied-flag" data-flag="${v.id}"></div>
         </div>
       `;
@@ -544,9 +541,7 @@ async function handleComment(id){
 
 async function clearAllChecks(){
   commented = {};
-  verified = {};
   await storageSet('commented-videos', commented);
-  await storageSet('verified-videos', verified);
   render();
 }
 
@@ -564,44 +559,11 @@ async function resetComments(){
   await storageSet('comment-lines', DEFAULT_COMMENTS);
 }
 
-async function resolveChannelId(apiKey, handleRaw){
-  const handle = handleRaw.trim();
-  if(/^UC[\w-]{20,}$/.test(handle)) return handle;
-  const cleaned = handle.replace(/^@/, '');
-  const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${encodeURIComponent(cleaned)}&key=${encodeURIComponent(apiKey)}`;
-  const res = await fetch(url);
-  const data = await res.json().catch(() => ({}));
-  if(!res.ok) throw new Error((data.error && data.error.message) || ('HTTP ' + res.status));
-  if(!data.items || !data.items.length) throw new Error('handle not found');
-  return data.items[0].id;
-}
-
-async function checkVideoComments(videoId, apiKey, channelId){
-  let pageToken = '';
-  let pages = 0;
-  const maxPages = 3;
-  do{
-    const url = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&maxResults=100&order=time&key=${encodeURIComponent(apiKey)}` + (pageToken ? `&pageToken=${pageToken}` : '');
-    const res = await fetch(url);
-    const data = await res.json().catch(() => ({}));
-    if(!res.ok) throw new Error((data.error && data.error.message) || ('HTTP ' + res.status));
-    const found = (data.items || []).some(item => {
-      const top = item.snippet && item.snippet.topLevelComment && item.snippet.topLevelComment.snippet;
-      return top && top.authorChannelId && top.authorChannelId.value === channelId;
-    });
-    if(found) return { found: true };
-    pageToken = data.nextPageToken;
-    pages++;
-  } while(pageToken && pages < maxPages);
-  return { found: false, truncated: !!pageToken, checked: pages * 100 };
-}
-
 async function saveVerifySettings(){
   const apiKey = document.getElementById('apiKeyInput').value.trim();
   const handle = document.getElementById('handleInput').value.trim();
   await storageSet('yt-api-key', apiKey);
   await storageSet('yt-handle', handle);
-  await storageSet('resolved-channel-id', null);
   document.getElementById('verifySettingsStatus').textContent = 'Saved.';
   setTimeout(() => { document.getElementById('verifySettingsStatus').textContent = ''; }, 2000);
 }
@@ -631,45 +593,6 @@ async function saveToServer(){
     setTimeout(() => { statusEl.textContent = ''; }, 4000);
   }catch(e){
     statusEl.textContent = 'Save failed: ' + e.message;
-  }
-}
-
-async function verifyVideo(id){
-  const apiKey = document.getElementById('apiKeyInput').value.trim();
-  const handle = document.getElementById('handleInput').value.trim();
-  const btn = document.querySelector(`button[data-vid="${id}"]`);
-  if(!apiKey || !handle){
-    setStatus('Add your API key and channel handle in "Comment verification" first.', true);
-    document.getElementById('verifyPanel').classList.add('open');
-    return;
-  }
-  const originalLabel = btn ? btn.textContent : '';
-  if(btn){ btn.textContent = 'Checking…'; btn.disabled = true; }
-  try{
-    let stored = await storageGet('resolved-channel-id', null);
-    let channelId;
-    if(stored && stored.handle === handle){
-      channelId = stored.id;
-    } else {
-      channelId = await resolveChannelId(apiKey, handle);
-      await storageSet('resolved-channel-id', { handle, id: channelId });
-    }
-    const result = await checkVideoComments(id, apiKey, channelId);
-    if(result.found){
-      commented[id] = true;
-      verified[id] = true;
-      await storageSet('commented-videos', commented);
-      await storageSet('verified-videos', verified);
-      setStatus('Confirmed — your comment was found.', false);
-    } else {
-      setStatus(result.truncated
-        ? `Not found in the most recent ${result.checked} comments.`
-        : 'No comment from you found on this video.', true);
-    }
-    render();
-  }catch(e){
-    setStatus('Check failed: ' + e.message, true);
-    if(btn){ btn.textContent = originalLabel; btn.disabled = false; }
   }
 }
 
@@ -723,7 +646,6 @@ async function parsePasted(){
 
 async function init(){
   commented = await storageGet('commented-videos', {});
-  verified = await storageGet('verified-videos', {});
   const savedLines = await storageGet('comment-lines', null);
   document.getElementById('commentList').value = (savedLines && savedLines.length ? savedLines : DEFAULT_COMMENTS).join('\n');
   let cfg = {};

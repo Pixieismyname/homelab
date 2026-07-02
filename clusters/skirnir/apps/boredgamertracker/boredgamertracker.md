@@ -82,25 +82,22 @@ per-browser.
    from the user's editable comment-lines list to the clipboard (does NOT
    auto-post — auto-posting comments was explicitly ruled out as it
    violates YouTube ToS and undermines the giveaway; this stays manual).
-6. Comment verification happens two ways now:
-   - **Automatic (server-side)**: `fetch_videos.py`, on its normal 30-min
-     loop inside the `fetcher` container, reads the API key/handle from
-     `site/key.json`, resolves the channel ID once per run, and calls
-     `commentThreads.list` (`order=time`, up to 3 pages / 300 most recent
-     comments, matching on `authorChannelId.value`) for every video not
-     already marked `commented: true` in `videos.yaml`. Once a video is
-     confirmed, it's skipped on all future runs — bounds API quota use
-     and it shrinks over time as more videos get confirmed. Confirmed
-     videos show green automatically on load, no click needed, and the
-     "Verify via API" button is hidden for them.
-   - **Manual (client-side, fallback)**: the "Verify via API" button
-     still exists for videos not yet auto-confirmed (e.g. right after
-     upload, before the next fetcher cycle) — same `resolveChannelId` /
-     `checkVideoComments` logic, run in-browser on click, result kept in
-     browser storage only (not written back to `videos.yaml`).
-   - Both are capped at 3 pages/300 comments — will report "not found"
-     on very high-traffic videos if the comment is buried past that
-     (known limitation, same cap both places).
+6. Comment verification is fully automatic and server-side now:
+   `fetch_videos.py`, on its normal 30-min loop inside the `fetcher`
+   container, reads the API key/handle from `site/key.json`, resolves
+   the channel ID once per run, and calls `commentThreads.list`
+   (`order=time`, up to 3 pages / 300 most recent comments, matching on
+   `authorChannelId.value`) for every video not already marked
+   `commented: true` in `videos.yaml`. Once a video is confirmed, it's
+   skipped on all future runs — bounds API quota use and it shrinks over
+   time as more videos get confirmed. Confirmed videos show green
+   automatically on load, no button or click needed. There is no
+   client-side/manual verify path anymore (removed along with the old
+   per-video "Verify via API" button) — right after a fresh upload there
+   can be up to a ~30-min gap before the next fetcher cycle picks it up.
+   Capped at 3 pages/300 comments — will report as not-yet-commented on
+   very high-traffic videos if the comment is buried past that (known
+   limitation).
 7. Predefined comment lines: 100 Star Citizen jokes (user requested
    non-salty, joke-structured, affectionate-not-bitter tone) live in
    `DEFAULT_COMMENTS` array in the HTML, editable/resettable in the
