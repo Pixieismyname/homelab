@@ -20,6 +20,7 @@ Stacks live in `apps/`:
 - `arr/`
 - `flaresolverr/`
 - `paperless/`
+- `boredgamertracker/`
 - `wazuh/` (planned)
 
 ## GitOps deploy

@@ -18,3 +18,7 @@ Thumbs.db
 # Optional local state
 **/.local/
 **/tmp/
+
+# BoredGamerUK comment tracker — local/generated, never commit
+clusters/skirnir/apps/boredgamertracker/site/key.json
+clusters/skirnir/apps/boredgamertracker/site/videos.yaml

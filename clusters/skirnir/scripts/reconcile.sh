@@ -173,6 +173,7 @@ STACKS=(
   "apps/arr/compose.yaml"
   "apps/flaresolverr/compose.yaml"
   "apps/paperless/compose.yaml"
+  "apps/boredgamertracker/compose.yaml"
 )
 
 for f in "${STACKS[@]}"; do
