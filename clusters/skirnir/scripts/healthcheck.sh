@@ -18,6 +18,7 @@ STACKS=(
   "apps/arr/compose.yaml"
   "apps/flaresolverr/compose.yaml"
   "apps/paperless/compose.yaml"
+  "apps/boredgamertracker/compose.yaml"
 )
 
 pending() {
@@ -177,6 +178,7 @@ main() {
   run_check "HTTP route: ${BAZARR_HOST}" check_http_route "$BAZARR_HOST"
   run_check "HTTP route: ${QBITTORRENT_HOST}" check_http_route "$QBITTORRENT_HOST"
   run_check "HTTP route: ${FLARESOLVERR_HOST}" check_http_route "$FLARESOLVERR_HOST"
+  run_check "HTTP route: ${BOREDGAMERTRACKER_HOST}" check_http_route "$BOREDGAMERTRACKER_HOST"
 
   echo ""
   echo "Healthcheck summary: ${PASS_COUNT} passed, ${FAIL_COUNT} failed"

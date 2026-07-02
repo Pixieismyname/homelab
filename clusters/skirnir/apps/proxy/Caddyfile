@@ -80,3 +80,10 @@ http://{$QBITTORRENT_HOST} {
 http://{$FLARESOLVERR_HOST} {
 	reverse_proxy flaresolverr:8191
 }
+
+# BoredGamerUK comment tracker
+http://{$BOREDGAMERTRACKER_HOST} {
+	@bgtApi path /api/*
+	reverse_proxy @bgtApi boredgamertracker-api:8080
+	reverse_proxy boredgamertracker-web:80
+}
