@@ -283,7 +283,8 @@ async function loadVideosFromYaml(){
     id: v.id,
     title: v.title || 'Untitled',
     published: v.published || '',
-    thumb: v.thumb || `https://i.ytimg.com/vi/${v.id}/mqdefault.jpg`
+    thumb: v.thumb || `https://i.ytimg.com/vi/${v.id}/mqdefault.jpg`,
+    apiCommented: !!v.commented
   })).filter(v => v.id);
 }
 
@@ -422,7 +423,7 @@ function parseFeedXml(xmlText){
     const published = (entry.getElementsByTagName('published')[0] || {}).textContent || '';
     const thumbEl = entry.getElementsByTagName('media:thumbnail')[0];
     const thumb = thumbEl ? thumbEl.getAttribute('url') : `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
-    return { id, title, published, thumb };
+    return { id, title, published, thumb, apiCommented: false };
   }).filter(v => v.id);
 }
 
@@ -443,7 +444,7 @@ function parseFeedJson(data){
   return items.map(item => {
     const id = extractIdFromLink(item.link, item.guid);
     const thumb = item.thumbnail || (id ? `https://i.ytimg.com/vi/${id}/mqdefault.jpg` : '');
-    return { id, title: item.title || 'Untitled', published: item.pubDate || '', thumb };
+    return { id, title: item.title || 'Untitled', published: item.pubDate || '', thumb, apiCommented: false };
   }).filter(v => v.id);
 }
 
@@ -468,7 +469,9 @@ function render(){
   } else {
     empty.style.display = 'none';
     videos.forEach(v => {
-      const done = !!commented[v.id];
+      const apiConfirmed = !!v.apiCommented;
+      const done = !!commented[v.id] || apiConfirmed;
+      const isVerified = !!verified[v.id] || apiConfirmed;
       const row = document.createElement('div');
       row.className = 'video' + (done ? ' done' : '');
       row.innerHTML = `
@@ -478,9 +481,9 @@ function render(){
           <p class="meta ${isRecent(v.published) ? 'new' : ''}">${isRecent(v.published) ? 'NEW · ' : ''}${fmtDate(v.published)}</p>
         </div>
         <div class="actions">
-          <div class="reticle ${done ? 'checked' : ''} ${verified[v.id] ? 'verified' : ''}" data-id="${v.id}" title="${verified[v.id] ? 'Confirmed via API' : (done ? 'Marked commented' : 'Click to mark commented')}"></div>
+          <div class="reticle ${done ? 'checked' : ''} ${isVerified ? 'verified' : ''}" data-id="${v.id}" title="${apiConfirmed ? 'Auto-confirmed via API' : (isVerified ? 'Confirmed via API' : (done ? 'Marked commented' : 'Click to mark commented'))}"></div>
           <button class="comment-btn small" data-id="${v.id}">Comment ↗</button>
-          <button class="small ghost" data-vid="${v.id}" onclick="verifyVideo('${v.id}')">Verify via API</button>
+          ${apiConfirmed ? '' : `<button class="small ghost" data-vid="${v.id}" onclick="verifyVideo('${v.id}')">Verify via API</button>`}
           <div class="copied-flag" data-flag="${v.id}"></div>
         </div>
       `;
