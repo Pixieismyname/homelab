@@ -22,3 +22,5 @@ Thumbs.db
 # BoredGamerUK comment tracker — local/generated, never commit
 clusters/skirnir/apps/boredgamertracker/site/key.json
 clusters/skirnir/apps/boredgamertracker/site/videos.yaml
+clusters/skirnir/apps/boredgamertrackerdesktop/site/key.json
+clusters/skirnir/apps/boredgamertrackerdesktop/site/videos.yaml

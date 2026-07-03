@@ -118,12 +118,12 @@ per-browser.
   — PyYAML handles quoting correctly, verified locally.
 
 ## Security note (important, unresolved by user as of last message)
-- The user pasted a real Google API key in chat twice
-  (`REDACTED_ROTATED_KEY`). It was explicitly flagged as
-  compromised and the user was told to rotate/delete it at
+- The user pasted a real Google API key in chat twice. It was explicitly
+  flagged as compromised and the user was told to rotate/delete it at
   https://console.cloud.google.com/apis/credentials and put a NEW key in
-  `config.js` locally. **Unknown whether the user has actually rotated it
-  yet** — worth confirming/reminding if it comes up again.
+  `config.js` locally. **Confirmed rotated 2026-07-03** — old key deleted,
+  new key issued, and this note redacted after GitGuardian flagged the old
+  key as leaked in the public repo.
 - Refused (and should continue to refuse) to hardcode a live API key
   directly into `comment-tracker.html` even for "only I will access this"
   framing — the compromise is `site/key.json` (originally `config.js`), a
