@@ -1,16 +1,21 @@
 #!/bin/bash
 # Jellyfin invokes this instead of ffmpeg (JELLYFIN_FFMPEG in compose.yaml).
 #
-# Injects a loudness-normalization filter into every audio *encode* so quiet
-# theatrical surround mixes come out at streaming loudness (-16 LUFS) no
-# matter what the client does with the channels afterwards. The TV client
-# advertises 5.1 support, so the server never does its own stereo downmix —
-# the TV downmixes internally and the result is far too quiet without this.
+# Injects a compress-then-boost filter into every audio *encode* so quiet
+# theatrical surround mixes come out at YouTube-like loudness no matter what
+# the client does with the channels afterwards. The TV client advertises 5.1
+# support, so the server never does its own stereo downmix — the TV downmixes
+# internally and the result is far too quiet without this.
+#
+# Plain loudnorm was measured too weak here (+4.5dB on quiet scenes): film
+# audio peaks near full scale, so without crushing dynamics first there is no
+# headroom for gain. Measured on real content: quiet scenes -30dB -> -17.7dB
+# mean, loud scenes -25dB -> -15.2dB mean, peaks limited at -0.4dB.
 #
 # Non-audio calls (probing, -version, stream copy) pass through untouched.
 
 REAL=/usr/lib/jellyfin-ffmpeg/ffmpeg
-FILTER="loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000"
+FILTER="acompressor=threshold=-30dB:ratio=8:attack=5:release=250:makeup=16dB,alimiter=level_in=1:limit=0.95:level=false"
 
 args=("$@")
 
