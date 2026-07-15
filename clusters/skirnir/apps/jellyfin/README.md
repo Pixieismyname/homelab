@@ -79,4 +79,25 @@ handles GPU access inside the container.
 | Playback error on specific files | Unsupported codec / subtitle burn-in | Check Jellyfin logs; force direct play or convert file |
 | Black screen, audio only | HDR tone-mapping failing | Disable tone-mapping or update VA-API driver |
 | Permission denied in logs | GPU access denied | Verify `group_add` matches host render GID |
+| Audio far too quiet on TV | TV downmixing 5.1/7.1 itself | See "Quiet audio" below |
+
+## Quiet audio on TV clients (surround downmix)
+
+Symptom: 100% volume sounds like ~20%. Cause: the client advertises 5.1
+support, so the server transcodes surround→5.1 AAC and the TV's own decoder
+does a quiet downmix. The server's downmix settings only apply when the
+*server* downmixes to stereo.
+
+Fix (both sides required):
+
+1. **Server** — Dashboard > Playback > Transcoding:
+   - Stereo downmix algorithm: **Night mode dialogue** (boosts center/dialogue)
+   - Audio boost when downmixing: 2 (only used when algorithm is "None")
+2. **Android TV app** — Settings > Playback > Audio behavior:
+   **Downmix to stereo**, so the server performs the downmix.
+
+Do NOT use an ffmpeg wrapper script for this — Jellyfin 10.8+ only honors a
+custom ffmpeg path via the `JELLYFIN_FFMPEG` env var, and the built-in
+downmix settings cover it. (A dead wrapper was removed from this stack in
+July 2026.)
 

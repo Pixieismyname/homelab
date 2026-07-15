@@ -5,7 +5,7 @@ name: jellyfin
 
 services:
   jellyfin:
-    image: jellyfin/jellyfin:10.10.6
+    image: jellyfin/jellyfin:10.11.11
     container_name: jellyfin
     restart: unless-stopped
 
@@ -19,8 +19,6 @@ services:
       - ${DOCKER_DATA}/jellyfin/cache:/cache
       # Transcoding temp dir — must be LOCAL storage, not the remote mount
       - ${DOCKER_DATA}/jellyfin/transcodes:/config/transcodes
-      # Audio volume boost wrapper (compensates quiet surround→AAC transcode)
-      - ${DOCKER_DATA}/jellyfin/config/ffmpeg-wrapper.sh:/usr/lib/jellyfin-ffmpeg/ffmpeg-wrapper.sh:ro
       - ${MEDIA_PATH}:/media:ro
       - ${DOWNLOADS_PATH}:/downloads:ro
       - ${DOWNLOADS_PATH}:/media/USBDownloads:ro
