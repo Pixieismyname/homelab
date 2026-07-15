@@ -15,7 +15,7 @@
 # Non-audio calls (probing, -version, stream copy) pass through untouched.
 
 REAL=/usr/lib/jellyfin-ffmpeg/ffmpeg
-FILTER="acompressor=threshold=-30dB:ratio=8:attack=5:release=250:makeup=16dB,alimiter=level_in=1:limit=0.95:level=false"
+FILTER="acompressor=threshold=-30dB:ratio=8:attack=5:release=250:makeup=18dB,alimiter=level_in=1:limit=0.95:level=false"
 
 args=("$@")
 
@@ -23,6 +23,7 @@ args=("$@")
 encodes_audio=false
 has_af=false
 target_layout=""
+ac_idx=""
 for ((i = 0; i < ${#args[@]}; i++)); do
     case "${args[$i]}" in
         -codec:a*|-c:a*|-acodec)
@@ -34,18 +35,26 @@ for ((i = 0; i < ${#args[@]}; i++)); do
             has_af=true
             ;;
         -ac)
-            # Jellyfin's channel downmix (-ac) is applied at the encoder,
-            # AFTER -af filters — which would re-attenuate the limited audio.
-            # Do the layout conversion first in our chain instead.
-            case "${args[$((i + 1))]}" in
-                1) target_layout="mono" ;;
-                2) target_layout="stereo" ;;
-                6) target_layout="5.1" ;;
-                8) target_layout="7.1" ;;
-            esac
+            ac_idx=$i
             ;;
     esac
 done
+
+# Force multichannel transcodes down to stereo: the TV's own 5.1->stereo
+# downmix attenuates heavily and happens after anything we can control.
+# Doing the downmix here lets the limiter use the full scale.
+# Also: -ac applies at the encoder, AFTER -af filters, so the layout
+# conversion must happen at the head of our own chain.
+if [[ -n "$ac_idx" ]]; then
+    case "${args[$((ac_idx + 1))]}" in
+        1) target_layout="mono" ;;
+        2) target_layout="stereo" ;;
+        *)
+            args[$((ac_idx + 1))]=2
+            target_layout="stereo"
+            ;;
+    esac
+fi
 
 if [[ -n "$target_layout" ]]; then
     FILTER="aformat=channel_layouts=${target_layout},${FILTER}"

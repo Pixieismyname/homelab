@@ -90,11 +90,12 @@ TV's own decoder does a quiet downmix. The server's stereo-downmix settings
 the one downmixing to stereo.
 
 Fix: `ffmpeg-wrapper.sh` (mounted from this directory, activated via the
-`JELLYFIN_FFMPEG` env var in compose.yaml) injects a compressor + limiter +
-makeup-gain filter into every audio encode, bringing transcodes to
-YouTube-like loudness before the TV downmixes them. Plain `loudnorm` was
-tried first and measured too weak (film peaks leave no headroom for gain
-without compression).
+`JELLYFIN_FFMPEG` env var in compose.yaml) rewrites every audio encode to
+force stereo output (rewriting `-ac 6/8` to `-ac 2`, so the TV never does
+its own quiet downmix) and injects a compressor + limiter + makeup-gain
+filter, bringing transcodes to YouTube-like loudness (~-15 dB mean). Plain
+`loudnorm` was tried first and measured too weak (film peaks leave no
+headroom for gain without compression).
 
 Notes:
 
