@@ -15,7 +15,7 @@
 # Non-audio calls (probing, -version, stream copy) pass through untouched.
 
 REAL=/usr/lib/jellyfin-ffmpeg/ffmpeg
-FILTER="acompressor=threshold=-30dB:ratio=8:attack=5:release=250:makeup=18dB,alimiter=level_in=1:limit=0.95:level=false"
+FILTER="acompressor=threshold=-30dB:ratio=8:attack=5:release=250:makeup=22dB,alimiter=level_in=1:limit=0.95:level=false"
 
 args=("$@")
 
