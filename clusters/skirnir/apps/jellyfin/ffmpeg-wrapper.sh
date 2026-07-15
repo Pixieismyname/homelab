@@ -22,6 +22,7 @@ args=("$@")
 # Only rewrite commands that actually encode audio (not copy / no audio)
 encodes_audio=false
 has_af=false
+target_layout=""
 for ((i = 0; i < ${#args[@]}; i++)); do
     case "${args[$i]}" in
         -codec:a*|-c:a*|-acodec)
@@ -32,8 +33,23 @@ for ((i = 0; i < ${#args[@]}; i++)); do
         -af)
             has_af=true
             ;;
+        -ac)
+            # Jellyfin's channel downmix (-ac) is applied at the encoder,
+            # AFTER -af filters — which would re-attenuate the limited audio.
+            # Do the layout conversion first in our chain instead.
+            case "${args[$((i + 1))]}" in
+                1) target_layout="mono" ;;
+                2) target_layout="stereo" ;;
+                6) target_layout="5.1" ;;
+                8) target_layout="7.1" ;;
+            esac
+            ;;
     esac
 done
+
+if [[ -n "$target_layout" ]]; then
+    FILTER="aformat=channel_layouts=${target_layout},${FILTER}"
+fi
 
 if ! $encodes_audio; then
     exec "$REAL" "${args[@]}"
