@@ -13,12 +13,18 @@ services:
       - TZ=${TZ}
       - PUID=${PUID}
       - PGID=${PGID}
+      # Route transcodes through the loudness wrapper (see ffmpeg-wrapper.sh).
+      # This env var is the only way Jellyfin 10.8+ accepts a custom ffmpeg path.
+      - JELLYFIN_FFMPEG=/usr/lib/jellyfin-ffmpeg/ffmpeg-wrapper.sh
 
     volumes:
       - ${DOCKER_DATA}/jellyfin/config:/config
       - ${DOCKER_DATA}/jellyfin/cache:/cache
       # Transcoding temp dir — must be LOCAL storage, not the remote mount
       - ${DOCKER_DATA}/jellyfin/transcodes:/config/transcodes
+      # Loudness wrapper, mounted from the repo. Must sit next to the real
+      # ffmpeg binary: Jellyfin resolves ffprobe as a sibling of JELLYFIN_FFMPEG.
+      - ./ffmpeg-wrapper.sh:/usr/lib/jellyfin-ffmpeg/ffmpeg-wrapper.sh:ro
       - ${MEDIA_PATH}:/media:ro
       - ${DOWNLOADS_PATH}:/downloads:ro
       - ${DOWNLOADS_PATH}:/media/USBDownloads:ro

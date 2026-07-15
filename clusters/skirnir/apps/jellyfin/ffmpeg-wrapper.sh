@@ -1,0 +1,57 @@
+#!/bin/bash
+# Jellyfin invokes this instead of ffmpeg (JELLYFIN_FFMPEG in compose.yaml).
+#
+# Injects a loudness-normalization filter into every audio *encode* so quiet
+# theatrical surround mixes come out at streaming loudness (-16 LUFS) no
+# matter what the client does with the channels afterwards. The TV client
+# advertises 5.1 support, so the server never does its own stereo downmix —
+# the TV downmixes internally and the result is far too quiet without this.
+#
+# Non-audio calls (probing, -version, stream copy) pass through untouched.
+
+REAL=/usr/lib/jellyfin-ffmpeg/ffmpeg
+FILTER="loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000"
+
+args=("$@")
+
+# Only rewrite commands that actually encode audio (not copy / no audio)
+encodes_audio=false
+has_af=false
+for ((i = 0; i < ${#args[@]}; i++)); do
+    case "${args[$i]}" in
+        -codec:a*|-c:a*|-acodec)
+            if [[ "${args[$((i + 1))]}" != "copy" ]]; then
+                encodes_audio=true
+            fi
+            ;;
+        -af)
+            has_af=true
+            ;;
+    esac
+done
+
+if ! $encodes_audio; then
+    exec "$REAL" "${args[@]}"
+fi
+
+new_args=()
+for ((i = 0; i < ${#args[@]}; i++)); do
+    # If Jellyfin already built an audio filter chain (e.g. a stereo
+    # downmix pan), append to it instead of clobbering it.
+    if [[ "${args[$i]}" == "-af" ]]; then
+        new_args+=("-af" "${args[$((i + 1))]},${FILTER}")
+        i=$((i + 1))
+        continue
+    fi
+    new_args+=("${args[$i]}")
+done
+
+if ! $has_af; then
+    # No existing audio filter: add ours just before the output (last arg)
+    last=$((${#new_args[@]} - 1))
+    out="${new_args[$last]}"
+    unset "new_args[$last]"
+    new_args+=("-af" "$FILTER" "$out")
+fi
+
+exec "$REAL" "${new_args[@]}"

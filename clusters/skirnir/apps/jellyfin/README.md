@@ -83,21 +83,28 @@ handles GPU access inside the container.
 
 ## Quiet audio on TV clients (surround downmix)
 
-Symptom: 100% volume sounds like ~20%. Cause: the client advertises 5.1
-support, so the server transcodes surround→5.1 AAC and the TV's own decoder
-does a quiet downmix. The server's downmix settings only apply when the
-*server* downmixes to stereo.
+Symptom: 100% volume sounds like ~20%. Cause: the Android TV client
+advertises 5.1 support, so the server transcodes surround→5.1 AAC and the
+TV's own decoder does a quiet downmix. The server's stereo-downmix settings
+(Dashboard > Playback > Transcoding) never apply because the server is not
+the one downmixing to stereo.
 
-Fix (both sides required):
+Fix: `ffmpeg-wrapper.sh` (mounted from this directory, activated via the
+`JELLYFIN_FFMPEG` env var in compose.yaml) injects
+`loudnorm=I=-16:TP=-1.5:LRA=11` into every audio encode, normalizing
+transcodes to streaming loudness before the TV downmixes them.
 
-1. **Server** — Dashboard > Playback > Transcoding:
-   - Stereo downmix algorithm: **Night mode dialogue** (boosts center/dialogue)
-   - Audio boost when downmixing: 2 (only used when algorithm is "None")
-2. **Android TV app** — Settings > Playback > Audio behavior:
-   **Downmix to stereo**, so the server performs the downmix.
+Notes:
 
-Do NOT use an ffmpeg wrapper script for this — Jellyfin 10.8+ only honors a
-custom ffmpeg path via the `JELLYFIN_FFMPEG` env var, and the built-in
-downmix settings cover it. (A dead wrapper was removed from this stack in
-July 2026.)
+- `JELLYFIN_FFMPEG` is the ONLY way Jellyfin 10.8+ accepts a custom ffmpeg
+  path — mounting a wrapper without it does nothing (a dead wrapper mounted
+  that way sat in this stack until July 2026).
+- The wrapper must live in `/usr/lib/jellyfin-ffmpeg/` next to the real
+  binary, because Jellyfin resolves ffprobe as a sibling of the ffmpeg path.
+- Verify it is active: Jellyfin startup log should say
+  `MediaEncoder: FFmpeg: /usr/lib/jellyfin-ffmpeg/ffmpeg-wrapper.sh`, and
+  transcode logs should show a `loudnorm` filter in the command line.
+- Server downmix settings are also set sanely (algorithm NightmodeDialogue,
+  boost 2) in case a stereo-only client ever does trigger a server downmix;
+  the wrapper appends to any existing `-af` chain rather than replacing it.
 
