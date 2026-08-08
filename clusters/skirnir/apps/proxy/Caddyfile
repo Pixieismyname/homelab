@@ -19,6 +19,15 @@ http://proxy.{$DOMAIN} {
 	respond "Caddy is running on skirnir" 200
 }
 
+# DnD cinematic display (served from the gaming PC, not a container —
+# DND_PC is its LAN IP; give it a DHCP reservation. flush_interval -1
+# keeps the SSE narration stream unbuffered.)
+http://{$DND_HOST} {
+	reverse_proxy {$DND_PC}:5001 {
+		flush_interval -1
+	}
+}
+
 # Homepage
 http://{$HOMEPAGE_HOST} {
 	reverse_proxy homepage:3000

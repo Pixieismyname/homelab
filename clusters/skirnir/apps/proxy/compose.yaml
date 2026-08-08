@@ -23,6 +23,8 @@ services:
       - QBITTORRENT_HOST=${QBITTORRENT_HOST}
       - FLARESOLVERR_HOST=${FLARESOLVERR_HOST}
       - BOREDGAMERTRACKER_HOST=${BOREDGAMERTRACKER_HOST}
+      - DND_HOST=${DND_HOST}
+      - DND_PC=${DND_PC}
 
     ports:
       # HTTP only for now (LAN). We'll add HTTPS later if/when you want it.
