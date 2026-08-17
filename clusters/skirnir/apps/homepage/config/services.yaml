@@ -2,6 +2,9 @@
     - Jellyfin:
         href: http://jellyfin.aegirshus
         description: Media server
+    - Audiobookshelf:
+        href: http://audiobooks.aegirshus
+        description: audiobooks + podcasts
     - Prowlarr:
         href: http://prowlarr.aegirshus
         description: indexer

@@ -63,5 +63,7 @@ Set category save paths in qBittorrent (`Settings` -> `Downloads` -> `Category S
 - `movies` -> `/downloads/movies`
 - `tv` -> `/downloads/tv`
 - `anime` -> `/downloads/anime`
+- `audiobooks` -> `/downloads/audiobooks` (manual grabs for Audiobookshelf; no
+  arr app imports these)
 
 New downloads will be stored on the host path configured by `${DOWNLOADS_PATH}`.

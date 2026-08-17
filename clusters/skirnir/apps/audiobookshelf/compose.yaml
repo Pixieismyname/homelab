@@ -1,0 +1,46 @@
+# Audiobookshelf
+# Uses variables from Mímir's Well: clusters/skirnir/mimir.env.example
+
+name: audiobookshelf
+
+services:
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:2.36.0
+    container_name: audiobookshelf
+    restart: unless-stopped
+
+    # Upstream image runs as root and has no PUID/PGID support (entrypoint is
+    # tini -> node, nothing drops privileges). Pinning the user here keeps
+    # library files owned like the arr stack; reconcile.sh chowns the data and
+    # library dirs to match.
+    user: "${PUID}:${PGID}"
+
+    environment:
+      - TZ=${TZ}
+
+    volumes:
+      - ${DOCKER_DATA}/audiobookshelf/config:/config
+      - ${DOCKER_DATA}/audiobookshelf/metadata:/metadata
+      # Library roots only. Audiobookshelf needs write access (metadata embed,
+      # file rename), so the whole media tree is deliberately not mounted.
+      - ${MEDIA_PATH}/Audiobooks:/audiobooks
+      - ${MEDIA_PATH}/Podcasts:/podcasts
+      # Uncomment to add finished downloads as a second (read-only) library
+      # instead of moving files into /audiobooks by hand:
+      # - ${DOWNLOADS_PATH}/audiobooks:/downloads:ro
+
+    # No ports exposed: accessed via Caddy at audiobooks.${DOMAIN} (container
+    # listens on 80).
+    networks:
+      - proxy
+
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+
+networks:
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK}

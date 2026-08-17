@@ -54,6 +54,21 @@ ensure_directory() {
   echo "[reconcile] Created storage directory: $path"
 }
 
+ensure_owned_directory() {
+  local path="$1"
+  local owner="${PUID:-}:${PGID:-}"
+
+  [[ -n "$path" ]] || return 0
+
+  ensure_directory "$path"
+
+  if [[ "$owner" != ":" ]]; then
+    # Non-recursive on purpose: this must not walk the whole media library.
+    chown "$owner" "$path"
+    echo "[reconcile] Owner set to $owner: $path"
+  fi
+}
+
 ensure_mount_if_needed() {
   local path="$1"
 
@@ -146,6 +161,7 @@ if [[ -n "${DOWNLOADS_PATH:-}" ]]; then
     "movies"
     "tv"
     "anime"
+    "audiobooks"
   )
 
   for category in "${DOWNLOAD_CATEGORIES[@]}"; do
@@ -162,6 +178,23 @@ for path in "${MOUNT_CANDIDATES[@]}"; do
   ensure_mount_if_needed "$path"
 done
 
+# Audiobookshelf runs as ${PUID}:${PGID} (the upstream image has no PUID/PGID
+# support), so its data dirs and library roots must be owned by that user or the
+# container crash-loops. Created after the mount loop so nothing lands inside a
+# directory that is about to be masked by a mount.
+if [[ -n "${DOCKER_DATA:-}" && -n "${MEDIA_PATH:-}" ]]; then
+  AUDIOBOOKSHELF_PATHS=(
+    "${DOCKER_DATA}/audiobookshelf/config"
+    "${DOCKER_DATA}/audiobookshelf/metadata"
+    "${MEDIA_PATH}/Audiobooks"
+    "${MEDIA_PATH}/Podcasts"
+  )
+
+  for path in "${AUDIOBOOKSHELF_PATHS[@]}"; do
+    ensure_owned_directory "$path"
+  done
+fi
+
 # Apply stacks (order matters a bit: proxy before UIs, etc.)
 STACKS=(
   "apps/proxy/compose.yaml"
@@ -170,6 +203,7 @@ STACKS=(
   "apps/homepage/compose.yaml"
   "apps/portainer/compose.yaml"
   "apps/jellyfin/compose.yaml"
+  "apps/audiobookshelf/compose.yaml"
   "apps/arr/compose.yaml"
   "apps/flaresolverr/compose.yaml"
   "apps/paperless/compose.yaml"

@@ -22,6 +22,7 @@ $checks = @(
     @{ Name = "DNS (AdGuard API)"; Host = "dns"; Path = "/control/status"; Method = "GET"; Expected = @(200, 401, 403); ApiHint = "AdGuard API endpoint" },
     @{ Name = "Portainer API"; Host = "portainer"; Path = "/api/status"; Method = "GET"; Expected = @(200); ApiHint = "Portainer status API" },
     @{ Name = "Jellyfin API"; Host = "jellyfin"; Path = "/System/Info/Public"; Method = "GET"; Expected = @(200); ApiHint = "Jellyfin public info API" },
+    @{ Name = "Audiobookshelf API"; Host = "audiobooks"; Path = "/ping"; Method = "GET"; Expected = @(200); ApiHint = "Audiobookshelf ping endpoint" },
     @{ Name = "Paperless API"; Host = "paperless"; Path = "/api/"; Method = "GET"; Expected = @(200, 301, 302, 401, 403); ApiHint = "Paperless API root" },
     @{ Name = "Home Assistant API"; Host = "ha"; Path = "/api/"; Method = "GET"; Expected = @(200, 401); ApiHint = "HA API root" },
     @{ Name = "Prowlarr API"; Host = "prowlarr"; Path = "/ping"; Method = "GET"; Expected = @(200); ApiHint = "Arr ping endpoint" },

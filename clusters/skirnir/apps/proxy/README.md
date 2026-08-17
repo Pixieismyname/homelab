@@ -12,6 +12,7 @@ Active hostnames include:
 - `${HOMEPAGE_HOST}`
 - `${PORTAINER_HOST}`
 - `${JELLYFIN_HOST}`
+- `${AUDIOBOOKSHELF_HOST}`
 - `${PAPERLESS_HOST}`
 - `${HOMEASSISTANT_HOST}`
 - `${PROWLARR_HOST}`

@@ -17,6 +17,7 @@ Stacks live in `apps/`:
 - `dns/` (AdGuard Home)
 - `homeassistant/`
 - `jellyfin/`
+- `audiobookshelf/`
 - `arr/`
 - `flaresolverr/`
 - `paperless/`
