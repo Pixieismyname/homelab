@@ -11,7 +11,7 @@
 
 # DNS (AdGuard Home UI)
 http://{$DNS_HOST} {
-	reverse_proxy adguard:3000
+	reverse_proxy adguard:80
 }
 
 # Optional landing page
