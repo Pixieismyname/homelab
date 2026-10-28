@@ -10,7 +10,7 @@
 }
 
 # DNS (AdGuard Home UI)
-http://{$DNS_HOST} {
+http://{$DNS_HOST} http://192.168.1.114:8080 {
 	reverse_proxy adguard:80
 }
 
