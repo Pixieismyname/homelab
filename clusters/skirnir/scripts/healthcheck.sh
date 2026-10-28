@@ -110,7 +110,7 @@ check_http_route() {
 
 check_dns_port() {
   local proto="$1"
-  docker compose --env-file .env -f apps/dns/compose.yaml port adguard "53/$proto" >/dev/null
+  docker compose --env-file .env -f apps/dns/compose.yaml port --protocol "$proto" adguard 53 >/dev/null
 }
 
 main() {
